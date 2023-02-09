@@ -1,59 +1,99 @@
-## KAS Agent configuration
-This section describes how to deploy and manage KAS agent integration resources for workloads, deployed through the workload factory. It is recommended to read [this](https://about.gitlab.com/blog/2021/09/10/setting-up-the-k-agent/) document get an understanding of the architecture and resources involved.
+# Terraform for Deploying a KAS agent in a GKE cluster
+This repository provides Terraform code for deploying a KAS agent in a GKE cluster, to connect your GKE cluster with a Gitlab repository to automatically deploy, manage, and monitor your cloud-native solutions. This creates resources in your cluster to deploy an agent that communicates with Gitlab to manage deployments. Here is a [link](https://about.gitlab.com/blog/2021/09/10/setting-up-the-k-agent/) to guide that explains the manual steps for making this configuration and an overview of the solution. More resource links are provided in [this](#references-and-public-docs) section.
 
-### Pre-requisites
-- Gitlab project which will hold the agentk configuration and deployment manifest exists.
-- KAS agent server in Gitlab must running, if using a self-managed server. The agent server address is specified in the `kas_address` variable
-- A GKE cluster is running where KAS agent client can be running in a pod.
-- Namespace where application will be onboarded is provided as an example.
-- Permissions for account to create a GAR in the project hosting the GKE cluster, for the KAS agent container registry
-- Manifest files for projects should be in directory structure for example as such:
+## How to setup
+- Create a new project in Gitlab
+- Setup a (GKE cluster)[https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster] that can egress to public internet to fetch communicate with a Gitlab agent. 
+- Use a personal or service account that has `roles/container.admin` permission.
+- Create directory `manifests/` in your project
+- Create a tfvars file from the [sample](./terraform.tfvars.sample) file
+- Run terraform init and apply to deploy resources
+```
+terraform init
+terraform apply
+```
+- Add yaml file in `/manifests` directory (sample is provided below) to add a deployment, and commit the change.
+- Ensure your namespace for the product has the correct deployment
 
-&nbsp;&nbsp;<gitlab server>/<namespace>/<project>/
+## Useful commands
+```
+# Get namespaces. Check that 2 namespaces for product and gitlab-agent exists
+kubectl get ns
 
-&nbsp;&nbsp;&nbsp;&nbsp;-- /manifests/  
+# Check pods gitlab kas namespace
+kubectl get pods -n <gitlab kas namespace name>
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-- project-deployment.yaml 
+# Check pods product namespace
+kubectl get pods -n <product namespace name>
 
-The directory structure is used by the template in `templates/agent-config.yaml.tpl` to detect changes in manifest files.
+# Check logs in product 
+kubectl logs <kas agent pod name> -n <gitlab kas namespace name>
+```
 
-### Resources created
+## Resources created
+See [terraform-docs.md](./terraform-docs.md) for details.
+Here is a summary:
+
 **Gitlab Resources**
-- Gitlab agent in the the Gitlab project
-- Gitlab agent token for workload
-- Config file based on template in `templates/agent-config.yaml.tpl`
+- Agent instance in Gitlab project to poll configuration changes in deployment manifests
+- Agent config file in the Gitlab project based on template in `templates/agent-config.yaml.tpl`
+
+**Product K8s Resources**
+- Sample prouct namespace
 
 **Agentk K8s Resources**
+- Namespace for agentk image in the cluster
 - Deploy KAS agent client through Helm chart
-- Namespace for agentk image for each project
-- GAR in GKE project where agentk image will be pushed
+- Kubernetes Service Account used by agent to manage deployments in product namespace
+- RBAC roles for KSA to read/write configMap of cluster
+- RBAC roles for KSA to read/write any k8s resources in product namespace
 
-### Variables to configure (Example)
-kas_address = "wss://kas.closedimage.dev/"
-agentk_image_name = "agentk"
-agentk_image_tag = "v15.2.0"
+## Considerations
+- Setup remote backend in provider
+- Configure service account with appropriate permissions in providers.tf
+- This example assumes SaaS offering of Gitlab KAS server is used "wss://kas.gitlab.com". For a self-managed server, the endpoint will be different
+- The product namespace is created here for giving an example. Remove it for implementation.
+- Networking and proxy settings between cluster and Gitlab agent can be configured in the helm chart value. Documentation reference is provided in `main.tf`.
 
-### How to upload agentk image (Example)
-`docker pull registry.gitlab.com/gitlab-org/cluster-integration/gitlab-agent/agentk:v15.2.0`
+## Variables to configure (Example)
+```
+project_id = "gitlab-kas-gke"
+cluster_name = "gitlab-kas-agent-cluster"
+cluster_location = "us-central1-c"
+gitlab_repo_name = "<user/org>/test-gitlab-kas-gke"
+product_name = "test-kas"
+agentk_image_tag = "v15.9.0-rc1"
+```
 
-`gcloud auth configure-docker northamerica-northeast1-docker.pkg.dev01`
+## Sample deployment.yaml
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-test
+  namespace: test-kas # Make sure this matches the product's namespace
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+```
 
-`docker tag registry.gitlab.com/gitlab-org/cluster-integration/gitlab-agent/agentk:v15.2.0  northamerica-northeast1-docker.pkg.dev/{GKE Project URL}/{GAR name}/agentk:v15.2.0`
-
-`docker push  northamerica-northeast1-docker.pkg.dev/{GKE Project URL}/{GAR name}/agentk:v15.2.0`
-
-### Enhancements
-- Pipeline driven lifecycle management for agentk image in GAR
-- Pipeline for upgrading KAS agent server and client instances
-
-### References and public docs
+## [References and public docs](#references-and-public-docs)
 - [Using GitOps with a Kubernetes cluster](https://docs.gitlab.com/ee/user/clusters/agent/gitops.html)
 - [How to deploy the GitLab Agent for Kubernetes with limited permissions](https://about.gitlab.com/blog/2021/09/10/setting-up-the-k-agent/)<a name="helpful">
-- [Troubleshooting](https://repository.prace-ri.eu/git/help/user/clusters/agent/troubleshooting.md)
+- [Troubleshooting](https://docs.gitlab.com/ee/user/clusters/agent/troubleshooting.html)
 - [Installing the agent for Kubernetes](https://docs.gitlab.com/ee/user/clusters/agent/install)
-
-
-PROJECT_ID=$(gcloud config get-value core/project) \
-USER_ID=$(gcloud config get-value core/account) \
-gcloud projects add-iam-policy-binding ${PROJECT_ID} --member=user:${USER_ID} --role=roles/container.admin \
-kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user ${USER_ID} ]
+- [Working with the agent for Kubernetes](https://docs.gitlab.com/ee/user/clusters/agent/work_with_agent.html)

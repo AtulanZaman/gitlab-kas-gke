@@ -1,10 +1,10 @@
 output "cluster_name" {
-  description = "Cluster where resources are created."
+  description = "Cluster where resources are created. (Data)"
   value       = data.google_container_cluster.my_cluster.name
 }
 
 output "gitlab_cluster_agent" {
-   description = "Gitlab cluster agent"
+   description = "Gitlab cluster agent details."
    value = {
         id = gitlab_cluster_agent.this.agent_id
         name = gitlab_cluster_agent.this.name
@@ -12,13 +12,13 @@ output "gitlab_cluster_agent" {
 }
 
 output "gitlab_cluster_agent_token" {
-    description = "Gitlab cluster agent token"
+    description = "Gitlab cluster agent token (sensitive)"
     value = gitlab_cluster_agent_token.this.token
     sensitive = true
 }
 
 output "gitlab_repository_file" {
-    description = "Gitlab repository file"
+    description = "Gitlab repository file details"
     value = {
         path = gitlab_repository_file.agent_config.file_path
         project = gitlab_repository_file.agent_config.project
