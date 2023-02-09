@@ -70,10 +70,10 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_cluster_name"></a> [cluster\_name](#output\_cluster\_name) | Cluster where resources are created. |
-| <a name="output_gitlab_cluster_agent"></a> [gitlab\_cluster\_agent](#output\_gitlab\_cluster\_agent) | Gitlab cluster agent |
-| <a name="output_gitlab_cluster_agent_token"></a> [gitlab\_cluster\_agent\_token](#output\_gitlab\_cluster\_agent\_token) | Gitlab cluster agent token |
-| <a name="output_gitlab_repository_file"></a> [gitlab\_repository\_file](#output\_gitlab\_repository\_file) | Gitlab repository file |
+| <a name="output_cluster_name"></a> [cluster\_name](#output\_cluster\_name) | Cluster where resources are created. (Data) |
+| <a name="output_gitlab_cluster_agent"></a> [gitlab\_cluster\_agent](#output\_gitlab\_cluster\_agent) | Gitlab cluster agent details. |
+| <a name="output_gitlab_cluster_agent_token"></a> [gitlab\_cluster\_agent\_token](#output\_gitlab\_cluster\_agent\_token) | Gitlab cluster agent token (sensitive) |
+| <a name="output_gitlab_repository_file"></a> [gitlab\_repository\_file](#output\_gitlab\_repository\_file) | Gitlab repository file details |
 | <a name="output_kubernetes_namespace_gitlab"></a> [kubernetes\_namespace\_gitlab](#output\_kubernetes\_namespace\_gitlab) | Namepace where gitlab agent is deployed |
 | <a name="output_kubernetes_namespace_product"></a> [kubernetes\_namespace\_product](#output\_kubernetes\_namespace\_product) | Namespace where product containers are deployed |
 | <a name="output_kubernetes_service_account_gitlab"></a> [kubernetes\_service\_account\_gitlab](#output\_kubernetes\_service\_account\_gitlab) | Service account that updates product pods on behalf of KAS agent |
