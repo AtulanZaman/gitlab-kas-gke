@@ -1,9 +1,9 @@
 # Terraform for Deploying a KAS agent in a GKE cluster
-This repository provides Terraform code for deploying a KAS agent in a GKE cluster, to connect your GKE cluster with a Gitlab repository to automatically deploy, manage, and monitor your cloud-native solutions. This creates resources in your cluster to deploy an agent that communicates with Gitlab to manage deployments. Here is a [link](https://about.gitlab.com/blog/2021/09/10/setting-up-the-k-agent/) to guide that explains the manual steps for making this configuration and an overview of the solution. More resource links are provided in [this](#references-and-public-docs) section.
+This repository provides Terraform code for deploying a KAS agent in a GKE cluster, to connect it with a Gitlab repository to automatically deploy, manage, and monitor your cloud-native solutions using GitOps practices. This creates resources in your cluster to deploy an agent that communicates with Gitlab to synchronize deployments. Here is a [link](https://about.gitlab.com/blog/2021/09/10/setting-up-the-k-agent/) to a guide that explains the manual steps for making this configuration and an overview of the solution. More resource links are provided in [this](#references-and-public-docs) section.
 
 ## How to setup
 - Create a new project in Gitlab
-- Setup a (GKE cluster)[https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster] that can egress to public internet to fetch communicate with a Gitlab agent. 
+- Setup a [GKE cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster) that can egress to public internet to communicate with a Gitlab agent. 
 - Use a personal or service account that has `roles/container.admin` permission.
 - Create directory `manifests/` in your project
 - Create a tfvars file from the [sample](./terraform.tfvars.sample) file
