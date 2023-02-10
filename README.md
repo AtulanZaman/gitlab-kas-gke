@@ -26,7 +26,7 @@ kubectl get pods -n <gitlab kas namespace name>
 # Check pods product namespace
 kubectl get pods -n <product namespace name>
 
-# Check logs in product 
+# Check logs in kas agent pod for synchronization
 kubectl logs <kas agent pod name> -n <gitlab kas namespace name>
 ```
 
