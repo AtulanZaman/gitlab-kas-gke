@@ -68,6 +68,7 @@ Here is a summary:
 - This example assumes SaaS offering of Gitlab KAS server is used "wss://kas.gitlab.com". For a self-managed server, the endpoint will be different
 - The product namespace is created here for giving an example. Remove it for implementation.
 - Networking and proxy settings between cluster and Gitlab agent can be configured in the helm chart value. Documentation reference is provided in `main.tf`.
+- This solution assumes that the product namespaces are created separately.Before adding a manifest YAML file for a new namespace ensure that the namespace is created.
 - Host the agentk image in an Artifact Registry and set the reference to that in the variables rather than pulling it from Gitlab's registry.
 
 ## Variables to configure (Example)
