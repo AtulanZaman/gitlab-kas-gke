@@ -303,9 +303,9 @@ locals {
     # HTTP Proxy settings, if there is proxy between the cluster hosting the agent and accessing the Gitlab server
     # https://docs.gitlab.com/ee/user/clusters/agent/install/#use-the-agent-behind-an-http-proxy
     # "extraEnv[0].name" = "HTTPS_PROXY"
-    # "extraEnv[0].value" = var.proxy_address
+    # "extraEnv[0].value" = http://<IP of Proxy>:<Port>
     # "extraEnv[1].name" = "NO_PROXY"
-    # "extraEnv[1].value" = var.no_proxy_values
+    # "extraEnv[1].value" = "<cluster non_masq_cidr1>\\,<cluster non_masq_cidr2>\\,.cluster.local\\,.svc"
   }
 }
 
