@@ -5,7 +5,7 @@ This repository provides Terraform code for deploying a KAS agent in a GKE clust
 - Create a new project in Gitlab
 - Setup a [GKE cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster) that can egress to public internet to communicate with a Gitlab agent. 
 - Use a personal or service account that has `roles/container.admin` permission.
-- Create directory `manifests/` in your project
+- Create directory `manifests/` in your Gitlab project
 - Create a tfvars file from the [sample](./terraform.tfvars.sample) file
 - Run terraform init and apply to deploy resources
 ```
@@ -54,6 +54,7 @@ Here is a summary:
 - This example assumes SaaS offering of Gitlab KAS server is used "wss://kas.gitlab.com". For a self-managed server, the endpoint will be different
 - The product namespace is created here for giving an example. Remove it for implementation.
 - Networking and proxy settings between cluster and Gitlab agent can be configured in the helm chart value. Documentation reference is provided in `main.tf`.
+- Host the agentk image in an Artifact Registry and set the reference to that in the variables rather than pulling it from Gitlab's registry.
 
 ## Variables to configure (Example)
 ```
