@@ -1,8 +1,22 @@
 # Terraform for Deploying a KAS agent in a GKE cluster
 This repository provides Terraform code for deploying a KAS agent in a GKE cluster, to connect it with a Gitlab repository to automatically deploy, manage, and monitor your cloud-native solutions using GitOps practices. This creates resources in your cluster to deploy an agent that communicates with Gitlab to synchronize deployments. Here is a [link](https://about.gitlab.com/blog/2021/09/10/setting-up-the-k-agent/) to a guide that explains the manual steps for making this configuration and an overview of the solution. More resource links are provided in [this](#references-and-public-docs) section.
 
+## Brief explanation
+The GitLab Kubernetes Agent (KAS) is a tool that helps you deploy your code to a Google Kubernetes Engine (GKE) cluster using GitOps practices. It does this by using a YAML configuration file that you create in your repository. It handles automated deployment of services after the images have been built by a CI/CD pipeline from source code. The flow diagram below illustrate the relationship between the two processes. Note that in this example `Manifest Repository` and `Agent configuration repository` is the same -- in production it can be hosted in different GitLab repos. This example deploys a dummy `nginx` image to decouple the Application CI/CD step.
+
+![Gitlab KAS flow diagram](docs/gitlab-kas-flow-diag.png)
+
+The Gitlab agent created in the Gitlab project is connected to the agentk service running in the cluster. When there is a change in the manifest file describing the deployment, the agent in Gitlab pulls the changes and invokes the connected service running in the GKE cluster to apply the declarative changes to the Kubernetes resources. The Kubernetes Service Account federating the deployment is governed by the RBAC policies with limited permissions to the cluster configmap and the product namespaces.
+
+![KAS Agent connection](docs/kas-agent-connection.png)
+
 ## How to setup
 - Create a new project in Gitlab
+- [Create a personal token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html) in Gitlab, and set environment variable `GITLAB_TOKEN` to be used my Terraform
+```
+export GITLAB_TOKEN=<token value>
+```
+Note that in production you'd want to use a [*Runner authentication token* or a *CI/CD job token*](https://docs.gitlab.com/ee/security/token_overview.html#runner-authentication-tokens-also-called-runner-tokens) depending on your IaC pipeline strategy.
 - Setup a [GKE cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster) that can egress to public internet to communicate with a Gitlab agent. 
 - Use a personal or service account that has `roles/container.admin` permission.
 - Create directory `manifests/` in your Gitlab project
